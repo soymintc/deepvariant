@@ -16,7 +16,7 @@ jobs:
       # Step 3: Lint the Dockerfile to catch errors early
       - name: Lint Dockerfile
         run: |
-          docker run --rm -i hadolint/hadolint --ignore DL3006 --ignore DL3015 --ignore DL3008 --ignore DL3042 < Dockerfile
+          docker run --rm -i hadolint/hadolint hadolint --ignore DL3006 --ignore DL3015 --ignore DL3008 --ignore DL3042 - < Dockerfile
 
       # Step 4: Log in to DockerHub to prevent rate limiting and allow caching
       - name: Log in to DockerHub
