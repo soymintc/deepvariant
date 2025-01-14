@@ -42,7 +42,12 @@ jobs:
             --cache-to=type=local,dest=/tmp/.buildx-cache \
             -t soymintc/deepvariant:v1 .
 
-      # Step 7: Test if `run_deepsomatic --help` produces output
+      # Step 7: Push the Docker image to DockerHub
+      - name: Push Docker Image
+        run: |
+          docker push soymintc/deepvariant:v1
+
+      # Step 8: Test if `run_deepsomatic --help` produces output
       - name: Test `run_deepsomatic --help`
         run: |
           docker run --rm soymintc/deepvariant:v1 run_deepsomatic --help > help.out || true
@@ -53,7 +58,7 @@ jobs:
             exit 1
           fi
 
-      # Step 8: Clean up Docker cache
+      # Step 9: Clean up Docker cache
       - name: Remove Docker cache
         if: success() # Remove cache only when the build is successful
         run: |
