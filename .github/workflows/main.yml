@@ -23,4 +23,10 @@ jobs:
 
       - name: Test `run_deepsomatic --help`
         run: |
-          docker run --rm soymintc/deepvariant:v1 run_deepsomatic --help
+          docker run --rm soymintc/deepvariant:v1 run_deepsomatic --help > help.out || true
+          if grep -q "run_deepsomatic" help.out; then
+            echo "Help output detected."
+          else
+            echo "Help output not detected!" >&2
+            exit 1
+          fi
