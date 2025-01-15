@@ -3,7 +3,7 @@ on: [push]
 jobs:
   setup_deepsomatic:
     runs-on: ubuntu-latest
-    name: DeepSomatic docker setup
+    name: DeepSomatic Docker Setup
     steps:
       # Step 1: Check out the repository
       - name: Checkout repository
@@ -18,36 +18,25 @@ jobs:
         run: |
           docker run --rm -i hadolint/hadolint hadolint --ignore DL3006 --ignore DL3015 --ignore DL3008 --ignore DL3042 - < Dockerfile
 
-      # Step 4: Log in to DockerHub to prevent rate limiting and allow caching
+      # Step 4: Log in to DockerHub to prevent rate limiting
       - name: Log in to DockerHub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 5: Use GitHub cache to store Docker layers
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
-
-      # Step 6: Build the Docker image with caching
+      # Step 5: Build the Docker image without caching
       - name: Build Docker Image
         run: |
           docker buildx build \
-            --cache-from=type=local,src=/tmp/.buildx-cache \
-            --cache-to=type=local,dest=/tmp/.buildx-cache \
             -t soymintc/deepvariant:v1 .
 
-      # Step 7: Push the Docker image to DockerHub
+      # Step 6: Push the Docker image to DockerHub
       - name: Push Docker Image
         run: |
           docker push soymintc/deepvariant:v1
 
-      # Step 8: Test if `run_deepsomatic --help` produces output
+      # Step 7: Test if `run_deepsomatic --help` produces output
       - name: Test `run_deepsomatic --help`
         run: |
           docker run --rm soymintc/deepvariant:v1 run_deepsomatic --help > help.out || true
@@ -57,11 +46,4 @@ jobs:
             echo "Help output not detected!" >&2
             exit 1
           fi
-
-      # Step 9: Clean up Docker cache
-      - name: Remove Docker cache
-        if: success() # Remove cache only when the build is successful
-        run: |
-          rm -rf /tmp/.buildx-cache
-          echo "Docker cache cleaned up."
 
