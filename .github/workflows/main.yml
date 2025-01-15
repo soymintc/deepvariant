@@ -25,18 +25,23 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Step 5: Build the Docker image without caching
+      # Step 5: Build the Docker image
       - name: Build Docker Image
         run: |
           docker buildx build \
+            --load \
             -t soymintc/deepvariant:v1 .
 
-      # Step 6: Push the Docker image to DockerHub
+      # Step 6: Verify Image Exists
+      - name: Verify Image Exists
+        run: docker images | grep "soymintc/deepvariant"
+
+      # Step 7: Push the Docker image to DockerHub
       - name: Push Docker Image
         run: |
           docker push soymintc/deepvariant:v1
 
-      # Step 7: Test if `run_deepsomatic --help` produces output
+      # Step 8: Test if `run_deepsomatic --help` produces output
       - name: Test `run_deepsomatic --help`
         run: |
           docker run --rm soymintc/deepvariant:v1 run_deepsomatic --help > help.out || true
